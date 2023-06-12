@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "544375303429",
+    "project_id": "busan-cafe",
+    "storage_bucket": "busan-cafe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:544375303429:android:b1c25c6176cc036b0f9b6c",
+        "android_client_info": {
+          "package_name": "com.example.cafe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "544375303429-o7n9f4s6n1qcd8lfe03c0na2i5g432s6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSkzAyrfFnlfloLY8Wd48pFb8LNNg6jRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "544375303429-o7n9f4s6n1qcd8lfe03c0na2i5g432s6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
