@@ -1,13 +1,16 @@
 package com.example.cafe
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cafe.databinding.ActivityLoginBinding
+import com.kakao.sdk.auth.AuthApiClient
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.common.model.KakaoSdkError
 import com.kakao.sdk.user.UserApiClient
 
 class LoginActivity:AppCompatActivity() {
@@ -20,6 +23,7 @@ class LoginActivity:AppCompatActivity() {
         }else if(token != null){
             //로그인 성공
             Log.e("로그인액티비티","로그인 카카오 어카운드 토큰 : $token")
+            startActivity(Intent(this,MainActivity::class.java))
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +56,7 @@ class LoginActivity:AppCompatActivity() {
                     }else if(token != null){
                         //로그인 성공
                         Log.e("로그인액티비티","토큰 == $token")
+                        startActivity(Intent(this,MainActivity::class.java))
                     }
 
                 }
@@ -64,4 +69,5 @@ class LoginActivity:AppCompatActivity() {
         }
        
     }
+
 }
