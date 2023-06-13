@@ -3,6 +3,7 @@ package com.example.cafe
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cafe.databinding.ActivityLoginBinding
 import com.kakao.sdk.auth.AuthApiClient
@@ -56,6 +57,7 @@ class LoginActivity:AppCompatActivity() {
                     }else if(token != null){
                         //로그인 성공
                         Log.e("로그인액티비티","토큰 == $token")
+                        Toast.makeText(this, "토큰 == $token", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this,MainActivity::class.java))
                     }
 

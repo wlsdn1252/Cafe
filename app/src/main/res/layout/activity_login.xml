@@ -6,12 +6,12 @@
 
     <Button
         android:id="@+id/kakaoTalkLoginButton"
-        android:text="카카로톡 로그인"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:background="@drawable/kakao_login_medium_wide"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
