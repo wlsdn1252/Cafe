@@ -1,6 +1,8 @@
 package com.example.cafe
 
-import android.content.Intent
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -12,27 +14,30 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import com.example.cafe.databinding.ActivityMainBinding
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.kakao.sdk.auth.AuthApiClient
-import com.kakao.sdk.common.model.KakaoSdkError
-import com.kakao.sdk.common.util.Utility
-import com.kakao.sdk.user.UserApiClient
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import com.google.gson.JsonObject
 import com.mancj.materialsearchbar.MaterialSearchBar
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListener,
+    GoogleMap.OnMyLocationClickListener,
+    OnMapReadyCallback {
 
     private lateinit var binding : ActivityMainBinding
-    private lateinit var mMap: GoogleMap
+    private lateinit var database: DatabaseReference    // 데이터베이스
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        database = Firebase.database.reference  // 데이터베이스
         setContentView(binding.root)
 
         val mapFragment = supportFragmentManager
@@ -41,33 +46,66 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         searchBar()
 
+        val reference = database.child("0") // 읽어올 데이터의 경로를 지정합니다.
 
+        // 데이터를 읽어온다.
+        val valueEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val store = dataSnapshot.getValue(Data::class.java)
+                if (store != null) {
+                    // 데이터를 성공적으로 가져왔을 때 처리할 로직
+                    Log.d(TAG, "hardness: ${store.hardness}")
+                    Log.d(TAG, "latitude: ${store.latitude}")
+                    Log.d(TAG, "newAddress: ${store.newAddress}")
+                    Log.d(TAG, "oldAddress: ${store.oldAddress}")
+                    Log.d(TAG, "storeName: ${store.storeName}")
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // 데이터 읽기 도중 에러가 발생했을 때 호출됩니다.
+                Log.e(TAG, "Database error: ${databaseError.message}")
+            }
+        }
+
+        reference.addValueEventListener(valueEventListener)
 
 
 
 
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(
-            MarkerOptions()
-                .position(sydney)
-                .title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(map: GoogleMap) {
+        // TODO: Before enabling the My Location layer, you must request
+        // location permission from the user. This sample does not include
+        // a request for location permission.
+        map.isMyLocationEnabled = true
+        map.setOnMyLocationButtonClickListener(this)
+        map.setOnMyLocationClickListener(this)
+    }
 
+    // 마커클릭
+    override fun onMyLocationClick(location: Location) {
+        Toast.makeText(this, "현재 내 위치:\n$location", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    // 내 위치 클릭
+    override fun onMyLocationButtonClick(): Boolean {
+        Toast.makeText(this, "내 위치 클릭", Toast.LENGTH_SHORT)
+            .show()
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false
     }
 
     private fun searchBar(){
         //View - 변수 연결
         val lv =binding.mListView as ListView
         val searchBar = binding.searchBar
-        searchBar.setHint("Search")
-        //음성검색모드 끄기
-        searchBar.setSpeechMode(false)
+        searchBar.setHint("상호명을 입력하세요")
         //검색어 목록 넣기
         var galaxies = arrayOf("Sombrero", "Cartwheel", "Pinwheel", "StarBust", "Whirlpool", "Ring Nebular", "Own Nebular", "Centaurus A", "Virgo Stellar Stream", "Canis Majos Overdensity", "Mayall's Object", "Leo", "Milky Way", "IC 1011", "Messier 81", "Andromeda", "Messier 87")
 
@@ -124,6 +162,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         })
     }
+
+
 
 
 }

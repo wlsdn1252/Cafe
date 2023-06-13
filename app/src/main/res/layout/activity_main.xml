@@ -24,7 +24,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:mt_hint="Custom hint"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="50dp"
         app:mt_menuIconDrawable="@drawable/round"/>
 
     <ListView
