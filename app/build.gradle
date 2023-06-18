@@ -52,6 +52,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database-ktx'
     
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1' //위치 권한
 
     // 검색바
     implementation 'com.github.mancj:MaterialSearchBar:0.8.5'
