@@ -3,10 +3,8 @@ package com.example.cafe
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationRequest
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -18,23 +16,19 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.example.cafe.adapters.Adapter
+import com.example.cafe.adapters.DetailAdapter
 import com.example.cafe.databinding.ActivityMainBinding
 import com.example.cafe.datas.Data
-import com.google.android.gms.common.api.ResolvableApiException
+import com.example.cafe.datas.DetailData
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.LocationSettingsResponse
-import com.google.android.gms.location.SettingsClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -73,6 +67,9 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
     lateinit var mAdapter : Adapter
     val mData = ArrayList<Data>()
     private lateinit var sydney : LatLng  // 첫 화면 내위치 설정
+    private var fusedLocationClient: FusedLocationProviderClient? = null
+    private var map: GoogleMap? = null
+    private val DEFAULT_ZOOM = 15f // 기본 줌 레벨 설정
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,37 +125,40 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
 //
 //        reference.addValueEventListener(valueEventListener)
     }
-    private var fusedLocationClient: FusedLocationProviderClient? = null
-    private var map: GoogleMap? = null
-    private val DEFAULT_ZOOM = 15f // 기본 줌 레벨 설정
+
+
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(map: GoogleMap) {
+
         // TODO: Before enabling the My Location layer, you must request
         // 사용자의 위치 권한. 이 샘플은 포함하지 않습니다
         // 위치 권한 요청.
-        map.isMyLocationEnabled = true
+        map.isMyLocationEnabled = true // 기본 마커
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
+
 
         // 위치서비스 클라이언트 만들기
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         // 마지막으로 알려진 위치 가져오기
         fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
             // 위치 가져오기 성공 시 호출되는 블록
-            val sydney = LatLng(location.latitude, location.longitude)
+            sydney = LatLng(location.latitude, location.longitude)
+            Log.e("초기 센디값 : ",sydney.toString())
 
             // 맵에 마커 추가
             map?.addMarker(
                 MarkerOptions()
                     .position(sydney)
-                    .title("Marker in Sydney")
+                    .title("현재 내 위치")
             )
 
             //카메라 줌
             val cameraUpdate = CameraUpdateFactory.newLatLngZoom(sydney, DEFAULT_ZOOM)
             // 맵 카메라 이동
             map?.moveCamera(cameraUpdate)
+
         }
 
 
@@ -191,7 +191,7 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
     private fun searchBar(){
         mAdapter = Adapter(this,R.layout.item_list,mData)
 
-                for(i : Int in 0..30){
+                for(i : Int in 0..7323){
             val reference = database.child("$i") // 읽어올 데이터의 경로를 지정합니다.
 
             // 데이터를 읽어온다.
@@ -202,10 +202,10 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
                         // 데이터를 성공적으로 가져왔을 때 처리할 로직
                         //Log.d(TAG, "hardness: ${store.hardness}")
                         //Log.d(TAG, "latitude: ${store.latitude}")
-                        Log.d(TAG, "newAddress: ${store.newAddress}")
+                        //Log.d(TAG, "newAddress: ${store.newAddress}")
                         //Log.d(TAG, "oldAddress: ${store.oldAddress}")
-                        Log.d(TAG, "storeName: ${store.storeName}")
-                        mData.add(Data(store.newAddress,store.storeName))
+                        //Log.d(TAG, "storeName: ${store.storeName}")
+                        mData.add(Data(store.hardness,store.latitude,store.newAddress,store.oldAddress,store.storeName))
 
                     }
                     binding.mListView.adapter = mAdapter
@@ -286,9 +286,42 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
             }
         })
 
+//        lv.setOnItemClickListener { parent, view, position, id ->
+//            val selectedItem = mAdapter.getItem(position)
+//            val latitude = selectedItem?.latitude
+//            val hardness = selectedItem?.hardness
+//
+//            if (latitude != null && hardness != null) {
+//                // 위도와 경도 사용
+//                Toast.makeText(this@MainActivity, "Latitude: $latitude, Longitude: $hardness", Toast.LENGTH_SHORT).show()
+//
+//                // 맵에 마커 추가
+//                val sydney = LatLng(latitude, hardness)
+//                Log.e("클릭 시 센디값 : ",sydney.toString())
+//                map?.let {
+//                    it.clear() // 기존 마커 제거
+//                    it.addMarker(
+//                        MarkerOptions()
+//                            .position(sydney)
+//                            .title("카페위치")
+//                    )
+//                    // 카메라 줌
+//                    val cameraUpdate = CameraUpdateFactory.newLatLng(sydney)
+//                    it.moveCamera(cameraUpdate)
+//                    it.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM))
+//                }
+//            }
+//        }
+
+
+
+
+
+
 
         //ListView 내의 아이템 누르면 Toast 발생
         lv.setOnItemClickListener(object : AdapterView.OnItemClickListener{
+
             override fun onItemClick(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -296,6 +329,16 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
                 id: Long
             ) {
                 Toast.makeText(this@MainActivity, mAdapter.getItem(position)!!.toString(), Toast.LENGTH_SHORT).show()
+                Log.e("aa", mAdapter.getPosition(Data())!!.toString())
+
+
+                // 맵에 마커 추가
+                map?.addMarker(
+                    MarkerOptions()
+                        .position(sydney)
+                        .title("현재 내 위치")
+                )
+
             }
 
         })
@@ -452,7 +495,7 @@ class MainActivity : AppCompatActivity(), GoogleMap.OnMyLocationButtonClickListe
             return
         }
         fusedLocationClient.lastLocation.addOnSuccessListener {// 지속적으로 위치권한을 요청하면 휴대폰에 부하가 걸린다. 그래서 마지막 장소를 불러온다.
-            sydney = LatLng(it.latitude,it.longitude)
+         //   sydney = LatLng(it.latitude,it.longitude)
         }
     }
 }

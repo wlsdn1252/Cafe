@@ -1,4 +1,4 @@
-package com.example.cafe
+package com.example.cafe.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.example.cafe.R
 import com.example.cafe.datas.Data
 
 //class Adapter(val mContext : Context, val resId : Int, val mList: List<Data>): ArrayAdapter<Data>(mContext,resId,mList) {
